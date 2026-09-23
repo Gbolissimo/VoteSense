@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "413444027309",
+    "firebase_url": "https://greenteach-64586.firebaseio.com",
+    "project_id": "greenteach-64586",
+    "storage_bucket": "greenteach-64586.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:413444027309:android:38637444083399057fa724",
+        "android_client_info": {
+          "package_name": "com.gbolissimo.greenteach"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFxX97XImdEEQQ2ilgMSQLGCOMYscOPAc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:413444027309:android:fdca06762f36fcdc7fa724",
+        "android_client_info": {
+          "package_name": "com.gbolissimo.greenteach.shoptracka"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFxX97XImdEEQQ2ilgMSQLGCOMYscOPAc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
