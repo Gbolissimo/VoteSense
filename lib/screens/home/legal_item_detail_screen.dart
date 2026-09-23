@@ -564,6 +564,7 @@ class _LegalItemDetailScreenState
                 ],
               ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),

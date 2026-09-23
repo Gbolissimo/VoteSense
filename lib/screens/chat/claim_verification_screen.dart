@@ -305,7 +305,7 @@ Return your response EXCLUSIVELY as a valid JSON object with no extra conversati
             // Results Section
             if (_verificationResult != null) _buildResultCard(),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 30),
 
           ],
         ),

@@ -247,7 +247,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
           ),
           if (_isLoading) const Padding(padding: EdgeInsets.all(8.0), child: LinearProgressIndicator(color: primaryColor)),
           _buildInputArea(),
-          SizedBox(height: 15,)
+          SizedBox(height: 20,)
         ],
       ),
     );

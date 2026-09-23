@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+
 import 'package:vote_sense/screens/home/recent_legal_screen.dart';
 import '../../models/recent_legal_item.dart';
 import '../../utils/globals.dart';
@@ -22,8 +24,7 @@ class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() =>
-      _DashboardScreenState();
+  State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
@@ -32,27 +33,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   User? loggedUser;
   bool _isLoadingAuth = true;
 
-  static const Color primaryColor =
-  Color(0xFF22C55E);
-
-  static const Color lightBackground =
-  Color(0xFFF8FAFC);
-
-  static const Color cardBackground =
-      Colors.white;
-
-  static const Color primaryText =
-  Color(0xFF1E293B);
-
-  static const Color secondaryText =
-  Color(0xFF64748B);
-
-  static const Color mutedText =
-  Color(0xFF94A3B8);
-
-  final PageController _assistantPageController = PageController();
-  Timer? _assistantAutoSlideTimer;
-  int _currentAssistantPage = 0;
+  static const Color primaryColor = Color(0xFF22C55E);
+  static const Color lightBackground = Color(0xFFF8FAFC);
+  static const Color cardBackground = Colors.white;
+  static const Color primaryText = Color(0xFF1E293B);
+  static const Color secondaryText = Color(0xFF64748B);
+  static const Color mutedText = Color(0xFF94A3B8);
 
   @override
   void initState() {
@@ -61,33 +47,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAuthAndRedirect();
     });
-
-    _startAssistantAutoSlide();
-
-  }
-
-  @override
-  void dispose() {
-    _assistantAutoSlideTimer?.cancel();
-    _assistantPageController.dispose();
-    super.dispose();
-  }
-
-  void _startAssistantAutoSlide() {
-    _assistantAutoSlideTimer = Timer.periodic(
-      const Duration(seconds: 10),
-          (_) {
-        if (!_assistantPageController.hasClients) return;
-
-        final nextPage = _currentAssistantPage == 0 ? 1 : 0;
-
-        _assistantPageController.animateToPage(
-          nextPage,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-      },
-    );
   }
 
   // ===========================================================================
@@ -96,16 +55,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _checkAuthAndRedirect() async {
     try {
-      final user =
-          FirebaseAuth.instance.currentUser;
+      final user = FirebaseAuth.instance.currentUser;
 
       if (user == null) {
         if (!mounted) return;
 
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-            builder: (_) =>
-            const LandingScreen(),
+            builder: (_) => const LandingScreen(),
           ),
               (route) => false,
         );
@@ -113,8 +70,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return;
       }
 
-      final exists =
-      await userExists(user.uid);
+      final exists = await userExists(user.uid);
 
       if (!mounted) return;
 
@@ -129,16 +85,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       } else {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-            builder: (_) =>
-            const SetupProfileScreen(),
+            builder: (_) => const SetupProfileScreen(),
           ),
               (route) => false,
         );
       }
     } catch (e) {
-      debugPrint(
-        'Auth check failed: $e',
-      );
+      debugPrint('Auth check failed: $e');
 
       if (!mounted) return;
 
@@ -152,8 +105,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (uid.isEmpty) return false;
 
     try {
-      final snapshot =
-      await FirebaseFirestore.instance
+      final snapshot = await FirebaseFirestore.instance
           .collection('new-users')
           .where(
         'uid',
@@ -164,38 +116,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       return snapshot.docs.isNotEmpty;
     } catch (e) {
-      debugPrint(
-        'Failed to check user existence: $e',
-      );
+      debugPrint('Failed to check user existence: $e');
 
       return false;
     }
   }
 
-  Future<void> _updateLoginTime(
-      String docId,
-      ) async {
+  Future<void> _updateLoginTime(String docId) async {
     try {
       final fcmToken =
-      await FirebaseMessaging.instance
-          .getToken();
+      await FirebaseMessaging.instance.getToken();
 
       await FirebaseFirestore.instance
           .collection('new-users')
           .doc(docId)
           .update({
-        'updatedAt':
-        FieldValue.serverTimestamp(),
-        'logs':
-        FieldValue.increment(1),
-        if (fcmToken != null &&
-            fcmToken.isNotEmpty)
+        'updatedAt': FieldValue.serverTimestamp(),
+        'logs': FieldValue.increment(1),
+        if (fcmToken != null && fcmToken.isNotEmpty)
           'fcmToken': fcmToken,
       });
     } catch (e) {
-      debugPrint(
-        'Failed to update login time: $e',
-      );
+      debugPrint('Failed to update login time: $e');
     }
   }
 
@@ -203,9 +145,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // NAVIGATION
   // ===========================================================================
 
-  Future<void> _navigateTo(
-      Widget screen,
-      ) async {
+  Future<void> _navigateTo(Widget screen) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -253,14 +193,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // HELPERS
   // ===========================================================================
 
-  Uint8List? _safeBase64Decode(
-      String rawBase64,
-      ) {
+  Uint8List? _safeBase64Decode(String rawBase64) {
     if (rawBase64.isEmpty) return null;
 
     try {
-      final cleanBase64 =
-      rawBase64.contains(',')
+      final cleanBase64 = rawBase64.contains(',')
           ? rawBase64.split(',').last.trim()
           : rawBase64.trim();
 
@@ -281,11 +218,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       decoration: BoxDecoration(
         color: cardBackground,
-        borderRadius:
-        BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.black
-              .withValues(alpha: 0.08),
+          color: Colors.black.withValues(alpha: 0.08),
         ),
       ),
       child: IconButton(
@@ -303,21 +238,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // PROFILE HEADER
   // ===========================================================================
 
-  Widget _buildProfileHeader(
-      User currentUser,
-      ) {
+  Widget _buildProfileHeader(User currentUser) {
     return SliverToBoxAdapter(
       child: Padding(
-        padding:
-        const EdgeInsets.fromLTRB(
+        padding: const EdgeInsets.fromLTRB(
           20,
           16,
           20,
           0,
         ),
         child: Row(
-          mainAxisAlignment:
-          MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: GestureDetector(
@@ -326,22 +257,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const MyProfileScreen(),
                   );
                 },
-                child:
-                StreamBuilder<DocumentSnapshot>(
-                  stream: FirebaseFirestore
-                      .instance
+                child: StreamBuilder<DocumentSnapshot>(
+                  stream: FirebaseFirestore.instance
                       .collection('new-users')
                       .doc(currentUser.uid)
                       .snapshots(),
-                  builder:
-                      (context, snapshot) {
-                    String firstName =
-                        'User';
-
+                  builder: (context, snapshot) {
+                    String firstName = 'User';
                     String lastName = '';
-
-                    String rawPhotoData =
-                        '';
+                    String rawPhotoData = '';
 
                     if (snapshot.hasData &&
                         snapshot.data!.exists) {
@@ -350,31 +274,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                       if (rawData
                       is Map<String, dynamic>) {
-                        final data =
-                            rawData;
+                        final data = rawData;
 
                         firstName =
-                            data['firstName']
-                                ?.toString() ??
+                            data['firstName']?.toString() ??
                                 'User';
 
                         lastName =
-                            data['lastName']
-                                ?.toString() ??
+                            data['lastName']?.toString() ??
                                 '';
 
                         rawPhotoData =
-                            data[
-                            'profilePicture']
+                            data['profilePicture']
                                 ?.toString() ??
-                                data['photoUrl']
-                                    ?.toString() ??
-                                data['photoURL']
-                                    ?.toString() ??
+                                data['photoUrl']?.toString() ??
+                                data['photoURL']?.toString() ??
                                 '';
 
-                        globalStatus =
-                        data['status'];
+                        globalStatus = data['status'];
 
                         globalName =
                             '${data['firstName'] ?? ''} '
@@ -382,31 +299,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 .trim();
 
                         globalFirstName =
-                            data['firstName']
-                                ?.toString() ??
-                                '';
+                            data['firstName']?.toString() ?? '';
                       }
                     } else {
-                      if (currentUser
-                          .displayName !=
-                          null &&
-                          currentUser
-                              .displayName!
+                      if (currentUser.displayName != null &&
+                          currentUser.displayName!
                               .trim()
                               .isNotEmpty) {
-                        final parts =
-                        currentUser
+                        final parts = currentUser
                             .displayName!
                             .trim()
                             .split(' ');
 
-                        firstName =
-                        parts.isNotEmpty
+                        firstName = parts.isNotEmpty
                             ? parts.first
                             : 'User';
 
-                        lastName =
-                        parts.length > 1
+                        lastName = parts.length > 1
                             ? parts
                             .sublist(1)
                             .join(' ')
@@ -414,18 +323,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       }
 
                       rawPhotoData =
-                          currentUser.photoURL ??
-                              '';
+                          currentUser.photoURL ?? '';
                     }
 
                     final isNetworkUrl =
-                        rawPhotoData.startsWith(
-                            'http://') ||
-                            rawPhotoData.startsWith(
-                                'https://');
+                        rawPhotoData.startsWith('http://') ||
+                            rawPhotoData.startsWith('https://');
 
-                    final base64Bytes =
-                    isNetworkUrl
+                    final base64Bytes = isNetworkUrl
                         ? null
                         : _safeBase64Decode(
                       rawPhotoData,
@@ -435,22 +340,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         ClipRRect(
                           borderRadius:
-                          BorderRadius
-                              .circular(
-                            22,
-                          ),
+                          BorderRadius.circular(22),
                           child: Container(
                             width: 44,
                             height: 44,
-                            color: primaryColor
-                                .withValues(
+                            color: primaryColor.withValues(
                               alpha: 0.12,
                             ),
                             child: isNetworkUrl
                                 ? Image.network(
                               rawPhotoData,
-                              fit: BoxFit
-                                  .cover,
+                              fit: BoxFit.cover,
                               errorBuilder:
                                   (
                                   context,
@@ -466,12 +366,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 );
                               },
                             )
-                                : base64Bytes !=
-                                null
+                                : base64Bytes != null
                                 ? Image.memory(
                               base64Bytes,
-                              fit: BoxFit
-                                  .cover,
+                              fit: BoxFit.cover,
                               errorBuilder:
                                   (
                                   context,
@@ -483,58 +381,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       .person_rounded,
                                   color:
                                   primaryColor,
-                                  size:
-                                  24,
+                                  size: 24,
                                 );
                               },
                             )
                                 : const Icon(
-                              Icons
-                                  .person_rounded,
-                              color:
-                              primaryColor,
+                              Icons.person_rounded,
+                              color: primaryColor,
                               size: 24,
                             ),
                           ),
                         ),
-                        const SizedBox(
-                          width: 12,
-                        ),
+
+                        const SizedBox(width: 12),
+
                         Expanded(
                           child: Column(
                             crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start,
+                            CrossAxisAlignment.start,
                             children: [
                               const Text(
                                 'Welcome',
-                                style:
-                                TextStyle(
-                                  color:
-                                  secondaryText,
-                                  fontSize:
-                                  12,
+                                style: TextStyle(
+                                  color: secondaryText,
+                                  fontSize: 12,
                                 ),
                               ),
-                              const SizedBox(
-                                height: 2,
-                              ),
+                              const SizedBox(height: 2),
                               Text(
                                 firstName,
-                                style:
-                                const TextStyle(
-                                  color:
-                                  primaryText,
-                                  fontSize:
-                                  17,
+                                style: const TextStyle(
+                                  color: primaryText,
+                                  fontSize: 17,
                                   fontWeight:
-                                  FontWeight
-                                      .bold,
+                                  FontWeight.bold,
                                 ),
                                 maxLines: 1,
                                 overflow:
-                                TextOverflow
-                                    .ellipsis,
+                                TextOverflow.ellipsis,
                               ),
                             ],
                           ),
@@ -545,14 +429,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             ),
+
             const SizedBox(width: 12),
+
             Row(
-              mainAxisSize:
-              MainAxisSize.min,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 _buildIconButton(
-                  icon: Icons
-                      .notifications_none_rounded,
+                  icon: Icons.notifications_none_rounded,
                   onPressed: () {
                     _navigateTo(
                       const NotificationsScreen(),
@@ -573,125 +457,94 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildElectionCountdown() {
     return SliverToBoxAdapter(
-      child:
-      StreamBuilder<DocumentSnapshot>(
+      child: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
-            .collection(
-          'election_settings',
-        )
+            .collection('election_settings')
             .doc('current')
             .snapshots(),
-        builder:
-            (context, snapshot) {
-          // Loading
+        builder: (context, snapshot) {
           if (snapshot.connectionState ==
               ConnectionState.waiting) {
             return Padding(
-              padding:
-              const EdgeInsets.fromLTRB(
+              padding: const EdgeInsets.fromLTRB(
                 20,
                 20,
                 20,
                 0,
               ),
-              child:
-              _buildCountdownLoading(),
+              child: _buildCountdownLoading(),
             );
           }
 
-          // Error
           if (snapshot.hasError) {
             debugPrint(
-              'Election countdown error: '
-                  '${snapshot.error}',
+              'Election countdown error: ${snapshot.error}',
             );
 
             return const SizedBox.shrink();
           }
 
-          // Document doesn't exist
           if (!snapshot.hasData ||
               !snapshot.data!.exists) {
-            debugPrint(
-              'Election countdown document '
-                  'does not exist.',
-            );
-
             return const SizedBox.shrink();
           }
 
-          final rawData =
-          snapshot.data!.data();
+          final rawData = snapshot.data!.data();
 
-          if (rawData
-          is! Map<String, dynamic>) {
+          if (rawData is! Map<String, dynamic>) {
             return const SizedBox.shrink();
           }
 
           final data = rawData;
 
-          // Check if countdown is active
-          final isActive =
-              data['isActive'] == true;
+          final isActive = data['isActive'] == true;
 
           if (!isActive) {
             return const SizedBox.shrink();
           }
 
           final title =
-              data['title']
-                  ?.toString() ??
+              data['title']?.toString() ??
                   '2027 General Election';
 
           final subtitle =
-              data['subtitle']
-                  ?.toString() ??
+              data['subtitle']?.toString() ??
                   'Countdown to Election Day';
 
-          final dynamic dateValue =
-          data['date'];
+          final dynamic dateValue = data['date'];
 
           DateTime? electionDate;
 
           if (dateValue is Timestamp) {
-            electionDate =
-                dateValue.toDate();
-          } else if (dateValue
-          is DateTime) {
+            electionDate = dateValue.toDate();
+          } else if (dateValue is DateTime) {
             electionDate = dateValue;
-          } else if (dateValue
-          is String) {
-            electionDate =
-                DateTime.tryParse(
-                  dateValue,
-                );
+          } else if (dateValue is String) {
+            electionDate = DateTime.tryParse(
+              dateValue,
+            );
           }
 
           if (electionDate == null) {
             debugPrint(
-              'Election date is missing '
-                  'or invalid.',
+              'Election date is missing or invalid.',
             );
 
             return const SizedBox.shrink();
           }
 
           return Padding(
-            padding:
-            const EdgeInsets.fromLTRB(
+            padding: const EdgeInsets.fromLTRB(
               20,
               20,
               20,
               0,
             ),
-            child:
-            _ElectionCountdownCard(
+            child: _ElectionCountdownCard(
               title: title,
               subtitle: subtitle,
-              electionDate:
-              electionDate,
-              primaryColor:
-              primaryColor,
+              electionDate: electionDate,
+              primaryColor: primaryColor,
             ),
           );
         },
@@ -705,16 +558,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       height: 145,
       decoration: BoxDecoration(
         color: cardBackground,
-        borderRadius:
-        BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.black
-              .withValues(alpha: 0.06),
+          color: Colors.black.withValues(alpha: 0.06),
         ),
       ),
       child: const Center(
-        child:
-        CircularProgressIndicator(
+        child: CircularProgressIndicator(
           color: primaryColor,
           strokeWidth: 2,
         ),
@@ -723,280 +573,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ===========================================================================
-  // AI ASSISTANT
-  // ===========================================================================
-
-  Widget _buildAIAssistantBanner() {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 160,
-              child: PageView(
-                controller: _assistantPageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentAssistantPage = index;
-                  });
-                },
-                children: [
-                  _buildAssistantCard(),
-                  _buildVerifyClaimCard(),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // Page indicators
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                2,
-                    (index) {
-                  final bool active =
-                      _currentAssistantPage == index;
-
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
-                    width: active ? 18 : 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: active
-                          ? primaryColor
-                          : primaryColor.withValues(alpha: 0.20),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAssistantCard() {
-    return GestureDetector(
-      onTap: () => _navigateTo(
-        const AIChatScreen(),
-      ),
-      child: Container(
-        margin: const EdgeInsets.only(right: 2),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: cardBackground,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: primaryColor.withValues(alpha: 0.30),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: primaryColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.auto_awesome_rounded,
-                        color: primaryColor,
-                        size: 14,
-                      ),
-                      SizedBox(width: 6),
-                      Text(
-                        'VoteSense AI',
-                        style: TextStyle(
-                          color: primaryColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(
-                  Icons.arrow_forward_rounded,
-                  color: Color(0xFF64748B),
-                  size: 18,
-                ),
-              ],
-            ),
-            SizedBox(height: 15,),
-            const Text(
-              'Your intelligent civic guide',
-              style: TextStyle(
-                color: Color(0xFF1E293B),
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                height: 1.3,
-              ),
-            ),
-
-            const SizedBox(height: 5),
-
-            const Text(
-              'Ask questions about elections, voting rights and civic responsibilities.',
-              style: TextStyle(
-                color: Color(0xFF64748B),
-                fontSize: 13,
-                height: 1.35,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildVerifyClaimCard() {
-    return GestureDetector(
-      onTap: () => _navigateTo(
-        const ClaimVerificationScreen(),
-      ),
-      child: Container(
-        margin: const EdgeInsets.only(right: 2),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: cardBackground,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: primaryColor.withValues(alpha: 0.30),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: primaryColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.fact_check_rounded,
-                        color: primaryColor,
-                        size: 14,
-                      ),
-                      SizedBox(width: 6),
-                      Text(
-                        'Verify a Claim',
-                        style: TextStyle(
-                          color: primaryColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(
-                  Icons.arrow_forward_rounded,
-                  color: Color(0xFF64748B),
-                  size: 18,
-                ),
-              ],
-            ),
-
-            SizedBox(height: 15,),
-
-            const Text(
-              'Is that election claim true?',
-              style: TextStyle(
-                color: Color(0xFF1E293B),
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                height: 1.3,
-              ),
-            ),
-
-            const SizedBox(height: 5),
-
-            const Text(
-              'Check election-related claims and get evidence-based context before you share.',
-              style: TextStyle(
-                color: Color(0xFF64748B),
-                fontSize: 13,
-                height: 1.35,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  // ===========================================================================
   // QUICK ACCESS
   // ===========================================================================
 
-  Widget _buildQuickAccess(
-      User currentUser,
-      ) {
+  Widget _buildQuickAccess(User currentUser) {
     return SliverToBoxAdapter(
       child: Padding(
-        padding:
-        const EdgeInsets.fromLTRB(
+        padding: const EdgeInsets.fromLTRB(
           20,
           28,
           20,
           0,
         ),
         child: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Quick Access',
               style: TextStyle(
                 color: primaryText,
                 fontSize: 18,
-                fontWeight:
-                FontWeight.bold,
+                fontWeight: FontWeight.bold,
               ),
             ),
+
             const SizedBox(height: 16),
+
             GridView.count(
               shrinkWrap: true,
               physics:
@@ -1008,8 +610,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 _QuickAccessItem(
                   label: 'Polling Units',
-                  icon:
-                  Icons.radar_rounded,
+                  icon: Icons.radar_rounded,
                   onTap: () {
                     _navigateTo(
                       const ClaimVerificationScreen(),
@@ -1018,21 +619,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 _QuickAccessItem(
                   label: 'Civic Trivia',
-                  icon: Icons
-                      .sports_esports_rounded,
+                  icon: Icons.sports_esports_rounded,
                   onTap: () {
                     _navigateTo(
                       LevelSelectionScreen(
-                        userId:
-                        currentUser.uid,
+                        userId: currentUser.uid,
                       ),
                     );
                   },
                 ),
                 _QuickAccessItem(
                   label: 'Messages',
-                  icon:
-                  Icons.chat_rounded,
+                  icon: Icons.chat_rounded,
                   onTap: () {
                     _navigateTo(
                       ChatListScreen(
@@ -1057,8 +655,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildNewsHeader() {
     return SliverToBoxAdapter(
       child: Padding(
-        padding:
-        const EdgeInsets.fromLTRB(
+        padding: const EdgeInsets.fromLTRB(
           20,
           28,
           20,
@@ -1066,8 +663,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         child: Row(
           mainAxisAlignment:
-          MainAxisAlignment
-              .spaceBetween,
+          MainAxisAlignment.spaceBetween,
           children: [
             const Expanded(
               child: Text(
@@ -1075,11 +671,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 style: TextStyle(
                   color: primaryText,
                   fontSize: 18,
-                  fontWeight:
-                  FontWeight.bold,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
+
             TextButton(
               onPressed: () {
                 _navigateTo(
@@ -1091,8 +687,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 style: TextStyle(
                   color: primaryColor,
                   fontSize: 14,
-                  fontWeight:
-                  FontWeight.w600,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -1116,16 +711,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       )
           .limit(5)
           .snapshots(),
-      builder:
-          (context, snapshot) {
+      builder: (context, snapshot) {
         debugPrint(
           'Election news connection: '
               '${snapshot.connectionState}',
         );
 
         debugPrint(
-          'Election news error: '
-              '${snapshot.error}',
+          'Election news error: ${snapshot.error}',
         );
 
         debugPrint(
@@ -1136,29 +729,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (snapshot.hasError) {
           return SliverToBoxAdapter(
             child: Padding(
-              padding:
-              const EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: 20,
               ),
               child: Container(
                 width: double.infinity,
-                padding:
-                const EdgeInsets.all(
-                  16,
-                ),
-                decoration:
-                BoxDecoration(
-                  color: Colors.red
-                      .withValues(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(
                     alpha: 0.06,
                   ),
                   borderRadius:
-                  BorderRadius.circular(
-                    16,
-                  ),
+                  BorderRadius.circular(16),
                   border: Border.all(
-                    color: Colors.red
-                        .withValues(
+                    color: Colors.red.withValues(
                       alpha: 0.15,
                     ),
                   ),
@@ -1170,32 +754,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const Row(
                       children: [
                         Icon(
-                          Icons
-                              .error_outline_rounded,
+                          Icons.error_outline_rounded,
                           color: Colors.red,
                           size: 20,
                         ),
                         SizedBox(width: 8),
                         Text(
                           'Unable to load election news',
-                          style:
-                          TextStyle(
-                            color:
-                            Colors.red,
+                          style: TextStyle(
+                            color: Colors.red,
                             fontWeight:
-                            FontWeight
-                                .w600,
+                            FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 8,
-                    ),
+
+                    const SizedBox(height: 8),
+
                     Text(
                       '${snapshot.error}',
-                      style:
-                      const TextStyle(
+                      style: const TextStyle(
                         color: Colors.red,
                         fontSize: 12,
                       ),
@@ -1211,13 +790,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ConnectionState.waiting) {
           return const SliverToBoxAdapter(
             child: Padding(
-              padding:
-              EdgeInsets.symmetric(
+              padding: EdgeInsets.symmetric(
                 vertical: 20,
               ),
               child: Center(
-                child:
-                CircularProgressIndicator(
+                child: CircularProgressIndicator(
                   color: primaryColor,
                 ),
               ),
@@ -1225,14 +802,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
         }
 
-        final docs =
-            snapshot.data?.docs ?? [];
+        final docs = snapshot.data?.docs ?? [];
 
         if (docs.isEmpty) {
           return const SliverToBoxAdapter(
             child: Padding(
-              padding:
-              EdgeInsets.fromLTRB(
+              padding: EdgeInsets.fromLTRB(
                 20,
                 10,
                 20,
@@ -1250,14 +825,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
         }
 
-        final List<RecentLegalItem>
-        items = [];
+        final List<RecentLegalItem> items = [];
 
         for (final doc in docs) {
           try {
             final item =
-            RecentLegalItem
-                .fromFirestore(doc);
+            RecentLegalItem.fromFirestore(doc);
 
             items.add(item);
 
@@ -1271,17 +844,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   '${doc.id}: $e',
             );
 
-            debugPrint(
-              '$stackTrace',
-            );
+            debugPrint('$stackTrace');
           }
         }
 
         if (items.isEmpty) {
           return const SliverToBoxAdapter(
             child: Padding(
-              padding:
-              EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
               child: Center(
                 child: Text(
                   'Unable to display election news.',
@@ -1295,8 +865,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
 
         return SliverList(
-          delegate:
-          SliverChildBuilderDelegate(
+          delegate: SliverChildBuilderDelegate(
                 (context, index) {
               return _buildNewsCard(
                 items[index],
@@ -1313,12 +882,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // NEWS CARD
   // ===========================================================================
 
-  Widget _buildNewsCard(
-      RecentLegalItem item,
-      ) {
+  Widget _buildNewsCard(RecentLegalItem item) {
     return Padding(
-      padding:
-      const EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         20,
         0,
         20,
@@ -1337,25 +903,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
         },
         child: Container(
-          padding:
-          const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: cardBackground,
-            borderRadius:
-            BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.black
-                  .withValues(alpha: 0.08),
+              color: Colors.black.withValues(
+                alpha: 0.08,
+              ),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black
-                    .withValues(
+                color: Colors.black.withValues(
                   alpha: 0.02,
                 ),
                 blurRadius: 6,
-                offset:
-                const Offset(0, 2),
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -1364,17 +927,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             CrossAxisAlignment.start,
             children: [
               Container(
-                padding:
-                const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: primaryColor
-                      .withValues(
+                  color: primaryColor.withValues(
                     alpha: 0.12,
                   ),
                   borderRadius:
-                  BorderRadius.circular(
-                    12,
-                  ),
+                  BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.article_outlined,
@@ -1382,7 +941,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   size: 22,
                 ),
               ),
+
               const SizedBox(width: 14),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment:
@@ -1405,8 +966,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 alpha: 0.05,
                               ),
                               borderRadius:
-                              BorderRadius
-                                  .circular(
+                              BorderRadius.circular(
                                 6,
                               ),
                             ),
@@ -1414,67 +974,58 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               item.tag,
                               style:
                               const TextStyle(
-                                color:
-                                secondaryText,
+                                color: secondaryText,
                                 fontSize: 10,
                                 fontWeight:
-                                FontWeight
-                                    .w600,
+                                FontWeight.w600,
                               ),
                             ),
                           ),
+
                         if (item.tag.isNotEmpty &&
-                            item.category
-                                .isNotEmpty)
-                          const SizedBox(
-                            width: 8,
-                          ),
-                        if (item.category
-                            .isNotEmpty)
+                            item.category.isNotEmpty)
+                          const SizedBox(width: 8),
+
+                        if (item.category.isNotEmpty)
                           Expanded(
                             child: Text(
                               item.category,
                               style:
                               const TextStyle(
-                                color:
-                                mutedText,
+                                color: mutedText,
                                 fontSize: 11,
                               ),
                               maxLines: 1,
                               overflow:
-                              TextOverflow
-                                  .ellipsis,
+                              TextOverflow.ellipsis,
                             ),
                           ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 6,
-                    ),
+
+                    const SizedBox(height: 6),
+
                     Text(
                       item.title.isNotEmpty
                           ? item.title
                           : 'Untitled update',
-                      style:
-                      const TextStyle(
+                      style: const TextStyle(
                         color: primaryText,
                         fontSize: 14,
-                        fontWeight:
-                        FontWeight.w600,
+                        fontWeight: FontWeight.w600,
                       ),
                       maxLines: 2,
                       overflow:
                       TextOverflow.ellipsis,
                     ),
-                    const SizedBox(
-                      height: 4,
-                    ),
+
+                    const SizedBox(height: 4),
+
                     Text(
                       item.fetchedAt.isNotEmpty
                           ? item.fetchedAt
                           : 'Recently',
-                      style:
-                      const TextStyle(
+                      style: const TextStyle(
                         color: mutedText,
                         fontSize: 12,
                       ),
@@ -1482,11 +1033,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
               ),
+
               const Icon(
-                Icons
-                    .chevron_right_rounded,
-                color:
-                Color(0xFFCBD5E1),
+                Icons.chevron_right_rounded,
+                color: Color(0xFFCBD5E1),
                 size: 20,
               ),
             ],
@@ -1504,11 +1054,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     if (_isLoadingAuth) {
       return const Scaffold(
-        backgroundColor:
-        lightBackground,
+        backgroundColor: lightBackground,
         body: Center(
-          child:
-          CircularProgressIndicator(
+          child: CircularProgressIndicator(
             color: primaryColor,
           ),
         ),
@@ -1519,11 +1067,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     if (currentUser == null) {
       return const Scaffold(
-        backgroundColor:
-        lightBackground,
+        backgroundColor: lightBackground,
         body: Center(
-          child:
-          CircularProgressIndicator(
+          child: CircularProgressIndicator(
             color: primaryColor,
           ),
         ),
@@ -1531,8 +1077,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     return Scaffold(
-      backgroundColor:
-      lightBackground,
+      backgroundColor: lightBackground,
 
       body: SafeArea(
         child: CustomScrollView(
@@ -1547,10 +1092,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
             // Election countdown
             _buildElectionCountdown(),
 
-            // AI Assistant
-            _buildAIAssistantBanner(),
+            // AI Assistant / Verify Claim
+            //
+            // IMPORTANT:
+            // This is now a separate StatefulWidget.
+            // Its PageView setState() will NOT rebuild
+            // the entire DashboardScreen.
+            const _AIAssistantBanner(),
 
             // Quick Access
+            //
+            // Uncomment if needed.
+            //
             // _buildQuickAccess(
             //   currentUser,
             // ),
@@ -1570,44 +1123,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
 
-      // =======================================================================
+      // =========================================================================
       // BOTTOM NAVIGATION
-      // =======================================================================
+      // =========================================================================
 
-      bottomNavigationBar:
-      Container(
+      bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: cardBackground,
           border: Border(
             top: BorderSide(
-              color: Colors.black
-                  .withValues(
+              color: Colors.black.withValues(
                 alpha: 0.08,
               ),
             ),
           ),
         ),
-        child:
-        BottomNavigationBar(
+        child: BottomNavigationBar(
           currentIndex:
           _currentBottomNavIndex,
-          onTap:
-          _onBottomNavTapped,
-          type:
-          BottomNavigationBarType
-              .fixed,
-          backgroundColor:
-          Colors.transparent,
+          onTap: _onBottomNavTapped,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.transparent,
           elevation: 0,
-          selectedItemColor:
-          primaryColor,
-          unselectedItemColor:
-          mutedText,
+          selectedItemColor: primaryColor,
+          unselectedItemColor: mutedText,
           selectedLabelStyle:
           const TextStyle(
             fontSize: 11,
-            fontWeight:
-            FontWeight.bold,
+            fontWeight: FontWeight.bold,
           ),
           unselectedLabelStyle:
           const TextStyle(
@@ -1640,6 +1183,414 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// AI ASSISTANT / VERIFY CLAIM SLIDER
+// =============================================================================
+//
+// This widget is intentionally separated from DashboardScreen.
+//
+// Changing _currentPage here only rebuilds this widget.
+// It does NOT call setState() on DashboardScreen.
+// =============================================================================
+
+class _AIAssistantBanner extends StatefulWidget {
+  const _AIAssistantBanner();
+
+  @override
+  State<_AIAssistantBanner> createState() =>
+      _AIAssistantBannerState();
+}
+
+class _AIAssistantBannerState
+    extends State<_AIAssistantBanner> {
+  static const Color primaryColor =
+  Color(0xFF22C55E);
+
+  static const Color primaryText =
+  Color(0xFF1E293B);
+
+  static const Color secondaryText =
+  Color(0xFF64748B);
+
+  final PageController _pageController =
+  PageController();
+
+  Timer? _autoSlideTimer;
+
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _startAutoSlide();
+  }
+
+  // ===========================================================================
+  // AUTO SLIDE
+  // ===========================================================================
+
+  void _startAutoSlide() {
+    _autoSlideTimer = Timer.periodic(
+      const Duration(seconds: 10),
+          (_) {
+        if (!mounted ||
+            !_pageController.hasClients) {
+          return;
+        }
+
+        final nextPage =
+        _currentPage == 0 ? 1 : 0;
+
+        _pageController.animateToPage(
+          nextPage,
+          duration:
+          const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _autoSlideTimer?.cancel();
+    _pageController.dispose();
+
+    super.dispose();
+  }
+
+  // ===========================================================================
+  // BUILD
+  // ===========================================================================
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          20,
+          24,
+          20,
+          0,
+        ),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 160,
+              child: PageView(
+                controller: _pageController,
+
+                onPageChanged: (index) {
+                  if (!mounted) return;
+
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+
+                children: [
+                  _buildAssistantCard(
+                    context,
+                  ),
+                  _buildVerifyClaimCard(
+                    context,
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Page indicators
+            Row(
+              mainAxisAlignment:
+              MainAxisAlignment.center,
+              children: List.generate(
+                2,
+                    (index) {
+                  final active =
+                      _currentPage == index;
+
+                  return AnimatedContainer(
+                    duration:
+                    const Duration(
+                      milliseconds: 250,
+                    ),
+                    margin:
+                    const EdgeInsets
+                        .symmetric(
+                      horizontal: 3,
+                    ),
+                    width: active ? 18 : 6,
+                    height: 6,
+                    decoration:
+                    BoxDecoration(
+                      color: active
+                          ? primaryColor
+                          : primaryColor
+                          .withValues(
+                        alpha: 0.20,
+                      ),
+                      borderRadius:
+                      BorderRadius.circular(
+                        10,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // AI ASSISTANT CARD
+  // ===========================================================================
+
+  Widget _buildAssistantCard(
+      BuildContext context,
+      ) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+            const AIChatScreen(),
+          ),
+        );
+      },
+      child: Container(
+        margin:
+        const EdgeInsets.only(right: 2),
+        padding:
+        const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius:
+          BorderRadius.circular(20),
+          border: Border.all(
+            color: primaryColor.withValues(
+              alpha: 0.30,
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color:
+              Colors.black.withValues(
+                alpha: 0.02,
+              ),
+              blurRadius: 6,
+              offset:
+              const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment:
+          CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment:
+              MainAxisAlignment
+                  .spaceBetween,
+              children: [
+                _buildAssistantLabel(
+                  icon:
+                  Icons.auto_awesome_rounded,
+                  text: 'VoteSense AI',
+                ),
+
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  color: secondaryText,
+                  size: 18,
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 15),
+
+            const Text(
+              'Your intelligent civic guide',
+              style: TextStyle(
+                color: primaryText,
+                fontSize: 17,
+                fontWeight:
+                FontWeight.bold,
+                height: 1.3,
+              ),
+            ),
+
+            const SizedBox(height: 5),
+
+            const Text(
+              'Ask questions about elections, voting rights and civic responsibilities.',
+              style: TextStyle(
+                color: secondaryText,
+                fontSize: 13,
+                height: 1.35,
+              ),
+              maxLines: 2,
+              overflow:
+              TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // VERIFY CLAIM CARD
+  // ===========================================================================
+
+  Widget _buildVerifyClaimCard(
+      BuildContext context,
+      ) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+            const ClaimVerificationScreen(),
+          ),
+        );
+      },
+      child: Container(
+        margin:
+        const EdgeInsets.only(right: 2),
+        padding:
+        const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius:
+          BorderRadius.circular(20),
+          border: Border.all(
+            color: primaryColor.withValues(
+              alpha: 0.30,
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color:
+              Colors.black.withValues(
+                alpha: 0.02,
+              ),
+              blurRadius: 6,
+              offset:
+              const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment:
+          CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment:
+              MainAxisAlignment
+                  .spaceBetween,
+              children: [
+                _buildAssistantLabel(
+                  icon:
+                  Icons.fact_check_rounded,
+                  text: 'Verify a Claim',
+                ),
+
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  color: secondaryText,
+                  size: 18,
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 15),
+
+            const Text(
+              'Is that election claim true?',
+              style: TextStyle(
+                color: primaryText,
+                fontSize: 17,
+                fontWeight:
+                FontWeight.bold,
+                height: 1.3,
+              ),
+            ),
+
+            const SizedBox(height: 5),
+
+            const Text(
+              'Check election-related claims and get evidence-based context before you share.',
+              style: TextStyle(
+                color: secondaryText,
+                fontSize: 13,
+                height: 1.35,
+              ),
+              maxLines: 2,
+              overflow:
+              TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // ASSISTANT LABEL
+  // ===========================================================================
+
+  Widget _buildAssistantLabel({
+    required IconData icon,
+    required String text,
+  }) {
+    return Container(
+      padding:
+      const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 5,
+      ),
+      decoration: BoxDecoration(
+        color: primaryColor.withValues(
+          alpha: 0.12,
+        ),
+        borderRadius:
+        BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize:
+        MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: primaryColor,
+            size: 14,
+          ),
+
+          const SizedBox(width: 6),
+
+          Text(
+            text,
+            style: const TextStyle(
+              color: primaryColor,
+              fontSize: 12,
+              fontWeight:
+              FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1695,13 +1646,13 @@ class _ElectionCountdownCardState
     final now = DateTime.now();
 
     final difference =
-    widget.electionDate
-        .difference(now);
+    widget.electionDate.difference(now);
 
     if (!mounted) {
       _remaining = difference.isNegative
           ? Duration.zero
           : difference;
+
       return;
     }
 
@@ -1716,6 +1667,7 @@ class _ElectionCountdownCardState
   @override
   void dispose() {
     _timer?.cancel();
+
     super.dispose();
   }
 
@@ -1768,15 +1720,16 @@ class _ElectionCountdownCardState
         borderRadius:
         BorderRadius.circular(20),
         border: Border.all(
-          color: widget.primaryColor
+          color:
+          widget.primaryColor
               .withValues(
             alpha: 0.20,
           ),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black
-                .withValues(
+            color:
+            Colors.black.withValues(
               alpha: 0.025,
             ),
             blurRadius: 10,
@@ -1789,10 +1742,6 @@ class _ElectionCountdownCardState
         crossAxisAlignment:
         CrossAxisAlignment.start,
         children: [
-          // -------------------------------------------------------------------
-          // HEADER
-          // -------------------------------------------------------------------
-
           Row(
             children: [
               Container(
@@ -1819,9 +1768,7 @@ class _ElectionCountdownCardState
                 ),
               ),
 
-              const SizedBox(
-                width: 12,
-              ),
+              const SizedBox(width: 12),
 
               Expanded(
                 child: Column(
@@ -1841,13 +1788,14 @@ class _ElectionCountdownCardState
                         Color(0xFF1E293B),
                         fontSize: 14,
                         fontWeight:
-                        FontWeight
-                            .bold,
+                        FontWeight.bold,
                       ),
                     ),
+
                     const SizedBox(
                       height: 3,
                     ),
+
                     Text(
                       widget.subtitle,
                       maxLines: 1,
@@ -1865,9 +1813,7 @@ class _ElectionCountdownCardState
                 ),
               ),
 
-              const SizedBox(
-                width: 8,
-              ),
+              const SizedBox(width: 8),
 
               Container(
                 padding:
@@ -1906,13 +1852,7 @@ class _ElectionCountdownCardState
             ],
           ),
 
-          const SizedBox(
-            height: 18,
-          ),
-
-          // -------------------------------------------------------------------
-          // COUNTDOWN
-          // -------------------------------------------------------------------
+          const SizedBox(height: 18),
 
           if (isToday)
             Container(
@@ -1956,14 +1896,11 @@ class _ElectionCountdownCardState
                     value: days,
                     label: 'DAYS',
                     primaryColor:
-                    widget
-                        .primaryColor,
+                    widget.primaryColor,
                   ),
                 ),
 
-                const SizedBox(
-                  width: 7,
-                ),
+                const SizedBox(width: 7),
 
                 Expanded(
                   child:
@@ -1971,14 +1908,11 @@ class _ElectionCountdownCardState
                     value: hours,
                     label: 'HOURS',
                     primaryColor:
-                    widget
-                        .primaryColor,
+                    widget.primaryColor,
                   ),
                 ),
 
-                const SizedBox(
-                  width: 7,
-                ),
+                const SizedBox(width: 7),
 
                 Expanded(
                   child:
@@ -1986,14 +1920,11 @@ class _ElectionCountdownCardState
                     value: minutes,
                     label: 'MIN',
                     primaryColor:
-                    widget
-                        .primaryColor,
+                    widget.primaryColor,
                   ),
                 ),
 
-                const SizedBox(
-                  width: 7,
-                ),
+                const SizedBox(width: 7),
 
                 Expanded(
                   child:
@@ -2001,20 +1932,13 @@ class _ElectionCountdownCardState
                     value: seconds,
                     label: 'SEC',
                     primaryColor:
-                    widget
-                        .primaryColor,
+                    widget.primaryColor,
                   ),
                 ),
               ],
             ),
 
-          const SizedBox(
-            height: 14,
-          ),
-
-          // -------------------------------------------------------------------
-          // DATE
-          // -------------------------------------------------------------------
+          const SizedBox(height: 14),
 
           Container(
             width: double.infinity,
@@ -2042,9 +1966,9 @@ class _ElectionCountdownCardState
                   Color(0xFF94A3B8),
                   size: 13,
                 ),
-                const SizedBox(
-                  width: 7,
-                ),
+
+                const SizedBox(width: 7),
+
                 const Text(
                   'Election Day',
                   style: TextStyle(
@@ -2053,7 +1977,9 @@ class _ElectionCountdownCardState
                     fontSize: 11,
                   ),
                 ),
+
                 const Spacer(),
+
                 Text(
                   _formatElectionDate(),
                   style:
@@ -2103,12 +2029,10 @@ class _CountdownUnit
         color:
         const Color(0xFFF8FAFC),
         borderRadius:
-        BorderRadius.circular(
-          12,
-        ),
+        BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.black
-              .withValues(
+          color:
+          Colors.black.withValues(
             alpha: 0.05,
           ),
         ),
@@ -2116,9 +2040,10 @@ class _CountdownUnit
       child: Column(
         children: [
           Text(
-            value
-                .toString()
-                .padLeft(2, '0'),
+            value.toString().padLeft(
+              2,
+              '0',
+            ),
             style: TextStyle(
               color: primaryColor,
               fontSize: 20,
@@ -2127,9 +2052,9 @@ class _CountdownUnit
               height: 1,
             ),
           ),
-          const SizedBox(
-            height: 5,
-          ),
+
+          const SizedBox(height: 5),
+
           Text(
             label,
             style:
@@ -2173,20 +2098,17 @@ class _QuickAccessItem
         BoxDecoration(
           color: Colors.white,
           borderRadius:
-          BorderRadius.circular(
-            16,
-          ),
+          BorderRadius.circular(16),
           border: Border.all(
-            color: Colors.black
-                .withValues(
+            color:
+            Colors.black.withValues(
               alpha: 0.08,
             ),
           ),
         ),
         child: Column(
           mainAxisAlignment:
-          MainAxisAlignment
-              .center,
+          MainAxisAlignment.center,
           children: [
             Container(
               padding:
@@ -2195,7 +2117,8 @@ class _QuickAccessItem
               ),
               decoration:
               BoxDecoration(
-                color: const Color(
+                color:
+                const Color(
                   0xFF22C55E,
                 ).withValues(
                   alpha: 0.12,
@@ -2212,9 +2135,9 @@ class _QuickAccessItem
                 size: 22,
               ),
             ),
-            const SizedBox(
-              height: 8,
-            ),
+
+            const SizedBox(height: 8),
+
             Text(
               label,
               textAlign:
