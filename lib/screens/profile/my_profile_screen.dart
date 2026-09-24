@@ -7,7 +7,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:vote_sense/screens/admin/all_users_screen.dart';
+import 'package:vote_sense/screens/admin/logged_users_screen.dart';
 import 'package:vote_sense/screens/profile/terms_and_privacy_policy_screen.dart';
+import '../../utils/globals.dart';
 import '../auth/landing_screen.dart';
 import 'help_and_legal_support_screen.dart';
 
@@ -919,10 +922,29 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         onTap: _handleSignOut,
                       ),
                     ]),
+
+                    if(globalStatus.toLowerCase() == 'admin')...[
+                    Divider(height: 1, color: Colors.black.withValues(alpha: 0.06), indent: 56),
+                    _buildListTile(
+                      icon: Icons.admin_panel_settings,
+                      title: 'All Users',
+                      subtitle: 'All user',
+                      onTap: () => _navigateTo( AllUsersScreen()),
+                    ),
+                    Divider(height: 1, color: Colors.black.withValues(alpha: 0.06), indent: 56),
+                    _buildListTile(
+                      icon: Icons.admin_panel_settings,
+                      title: 'Logged Users',
+                      subtitle: 'Logged users user',
+                      onTap: () => _navigateTo( LoggedUsersScreen()),
+                    ),
+            ],
                   ],
                 ),
               ),
             ),
+
+
           ],
         ),
       ),

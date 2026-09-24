@@ -329,22 +329,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ],
                               ),
                             ),
-                            TextButton(
-                              onPressed: _isLoading ? null : _handleForgotPassword,
-                              style: TextButton.styleFrom(
-                                padding: EdgeInsets.zero,
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: const Text(
-                                'Forgot Password?',
-                                style: TextStyle(
-                                  color: primaryColor,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
+                            // TextButton(
+                            //   onPressed: _isLoading ? null : _handleForgotPassword,
+                            //   style: TextButton.styleFrom(
+                            //     padding: EdgeInsets.zero,
+                            //     minimumSize: Size.zero,
+                            //     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            //   ),
+                            //   child: const Text(
+                            //     'Forgot Password?',
+                            //     style: TextStyle(
+                            //       color: primaryColor,
+                            //       fontSize: 14,
+                            //       fontWeight: FontWeight.w600,
+                            //     ),
+                            //   ),
+                            // ),
                           ],
                         ),
                         const SizedBox(height: 100),

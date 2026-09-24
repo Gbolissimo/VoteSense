@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:vote_sense/screens/home/dashboard_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -58,6 +59,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       final String password = _passwordController.text;
       final String phone = _phoneController.text.trim();
 
+      // Firebase automatically signs the user in upon successful creation
       UserCredential userCredential =
       await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -88,7 +90,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
         if (mounted) {
           _showSnackBar('Account created successfully!', isError: false);
-          Navigator.maybePop(context);
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const DashboardScreen()), // Replace with your home screen widget
+                (route) => false,
+          );
         }
       }
     } on FirebaseAuthException catch (e) {
