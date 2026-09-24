@@ -1,16 +1,12 @@
-# vote_sense
+# VoteSense
 
-An application for VoteSense
+A mobile application for VoteSense. 
 
-## Getting Started
+VoteSense is an AI-powered civic education platform designed to help Nigerians  understand elections and participate as informed citizens.
 
-This project is a starting point for a Flutter application.
+## Banner
 
-A few resources to get you started if this is your first Flutter project:
+<img width="1376" height="768" alt="demo_banner" src="https://github.com/user-attachments/assets/94561686-7ae1-45fb-a3c9-a21e76639b13" />
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
