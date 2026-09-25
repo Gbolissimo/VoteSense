@@ -1114,7 +1114,8 @@ class _RecentLegalScreenState extends State<RecentLegalScreen> {
                     .orderBy(
                   'fetchedAt',
                   descending: true,
-                ).limitToLast(100)
+                )
+                    .limit(100)
                     .snapshots(),
                 builder:
                     (context, snapshot) {
